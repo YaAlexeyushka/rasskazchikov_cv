@@ -17,7 +17,7 @@ for x in range(size):
         r = lerp(color1[0], color2[0], t)
         g = lerp(color1[1], color2[1], t)
         b = lerp(color1[2], color2[2], t)
-        image[y, x, :] = [r, g, b]  
+        image[x, y] = [r, g, b]  
 
 plt.figure(1)
 plt.imshow(image)
