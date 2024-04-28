@@ -18,7 +18,7 @@ for i in range(1, labelsAmount):
     h = stats[i, cv2.CC_STAT_HEIGHT]
     area = stats[i, cv2.CC_STAT_AREA]
 
-    subimg = img[y:y+h, x:x+w]          
+    subimg = imgHsv[y:y+h, x:x+w]          
     key = subimg[h//2, w//2, 0]
     
     if(area == w*h):
