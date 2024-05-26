@@ -8,7 +8,7 @@ import cv2
 
 
 ## константы
-start_distance_trex_detect_obstacles = 180
+start_distance_trex_detect_obstacles = 190
 start_substraction = 0
 
 ## пути
@@ -63,11 +63,11 @@ def find_obstacle_coordinates(obstacle_path, monitor=None, is_pterodactyl=False,
                 height = obstacle_img.shape[0]
 
                 if (is_pterodactyl):
-                    print('eto pterodactyl!')
-                    if (abs(max_loc[1] - trex_coordinates['y1']) > 270):
-                        obstacles[obstacle][2] = False
-                    else:
+                    print(max_loc[1], trex_coordinates['y1'])
+                    if ((trex_coordinates['y1'] - max_loc[1]) < 270):
                         obstacles[obstacle][2] = True
+                    else:
+                        obstacles[obstacle][2] = False
 
                 return {'x1': start_x, 'x2': end_x, 'y1': start_y, 'y2': end_y,
                         'height': height, 'width': width, 'path':obstacle_path}
@@ -130,31 +130,31 @@ def calculate_speed(obstacle_coordinates, trex_coordinates, distance_trex_detect
     current_obstacle_start1 = find_obstacle_coordinates(obstacle_path, current_monitor)['x1']
     time1 = time.time()
 
-    time.sleep(0.05)
+    time.sleep(0.03)
 
     current_obstacle_coordinates = find_obstacle_coordinates(obstacle_path, current_monitor)
     current_obstacle_start2 = current_obstacle_coordinates['x1']
     time2 = time.time()
-    
-    current_obstacle_coordinates['width'] * 1.1
-    
+        
     if (obstacle_path == 'images/pterodactyl.png'):
         current_obstacle_coordinates['width'] = trex_coordinates['width'] * 1.3
         
     elif (obstacle_path == 'images/mini_cactus.png'):
-        obstacle_coordinates['width'] = 0
+        obstacle_coordinates['width'] *= 0.02
         
     elif (obstacle_path == 'images/cactus.png'):
-        current_obstacle_coordinates['width'] *= 1.5
+        current_obstacle_coordinates['width'] *= 0.9
     
     elif (obstacle_path == 'images/triple_cactus.png'):
-        current_obstacle_coordinates['width'] *= 5
+        current_obstacle_coordinates['width'] *= 1.7
         
     elif (obstacle_path == 'images/triple_mini_cactus.png'):
-        current_obstacle_coordinates['width'] *= 1.42
-
+        current_obstacle_coordinates['width'] *= 1.5
+        
+    elif (obstacle_path   == 'images/double_cactus.png'):
+        current_obstacle_coordinates['width'] *= 1.2
     
-    distance = current_obstacle_start2 - trex_coordinates['x2'] 
+    distance = current_obstacle_start2 - (trex_coordinates['x2']) 
     
     speed = (current_obstacle_start1 - current_obstacle_start2) / (time2 - time1)
 
@@ -205,9 +205,11 @@ def jump(obstacle_coordinates, trex_coordinates, time_in_jump, obstacle, distanc
     if wait_time_before_jump > 0:
         time.sleep(wait_time_before_jump)
     
-    if (is_need_quick_jump):
+    if (obstacle != 'triple_cactus' and obstacle != 'double_cactus'):
+        substraction *= 1.25
         pyautogui.keyDown(button)
         if (button == 'space'):
+            pass
             pyautogui.keyUp(button)
     else: 
         keyboard.press(button)
@@ -215,10 +217,9 @@ def jump(obstacle_coordinates, trex_coordinates, time_in_jump, obstacle, distanc
     try:
         wait_time_after_jump = calculate_wait_time_after_jump(obstacle_coordinates, trex_coordinates, time_in_jump, distance_trex_detect_obstacles)
     except:
-        wait_time_after_jump = 0
+        wait_time_after_jump = 0.1
         print(wait_time_after_jump)    
     
-    substraction = 0
     wait_time_after_jump -= substraction
     
     if (wait_time_after_jump > 0):
@@ -226,7 +227,7 @@ def jump(obstacle_coordinates, trex_coordinates, time_in_jump, obstacle, distanc
     
     pyautogui.keyDown('down')
     
-    time.sleep(0.1)
+    time.sleep(0.09)
     
     pyautogui.keyUp('down')
     
@@ -243,6 +244,8 @@ def play_trex():
     
     time_in_default_jump = calculate_time_in_default_jump(trex_coordinates['y2'])
     print(f'calculated time of default jump is {time_in_default_jump}')
+     
+    time_in_default_jump = 0.42
     
     while True:
         
@@ -256,7 +259,7 @@ def play_trex():
             
             is_need_quick_jump = False
             time_in_jump = time_in_default_jump
-            if (obstacle == 'mini_cactus'):
+            if (obstacle == ''):
                 time_in_jump = time_in_quick_jump
                 is_need_quick_jump = True
             
@@ -269,7 +272,7 @@ def play_trex():
             current_time = time.time()
             duration = current_time - start_time
             
-            distance_trex_detect_obstacles  = start_distance_trex_detect_obstacles + duration * 2
+            distance_trex_detect_obstacles  = start_distance_trex_detect_obstacles + duration * 3
             
             left = int(trex_coordinates['x2'])
             top = int(trex_coordinates['y2'] - trex_coordinates['height'] * 2)
@@ -286,7 +289,7 @@ def play_trex():
                 current_time = time.time()
                 duration = current_time - start_time
                 
-                substraction = start_substraction + (duration / 1600) 
+                substraction = start_substraction + (duration / 1300) 
                 
                 jump(obstacle_coordinates, trex_coordinates, time_in_jump, obstacle, distance_trex_detect_obstacles, substraction, is_need_quick_jump)
                 break
